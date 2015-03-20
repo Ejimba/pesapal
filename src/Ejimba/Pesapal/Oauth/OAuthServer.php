@@ -6,7 +6,7 @@
  * Time: 2:12 AM
  */
 
-namespace Ejimba\Pesapal;
+namespace Ejimba\Pesapal\Oauth;
 
 
 class OAuthServer {

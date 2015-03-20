@@ -6,10 +6,10 @@
  * Time: 2:09 AM
  */
 
-namespace Ejimba\Pesapal;
+namespace Ejimba\Pesapal\Oauth;
 
 
-class OAuthSignatureMethod_PLAINTEXT extends \OAuthSignatureMethod {
+class OAuthSignatureMethod_PLAINTEXT extends OAuthSignatureMethod {
     public function get_name() {
         return "PLAINTEXT";
     }

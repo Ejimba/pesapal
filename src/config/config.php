@@ -1,4 +1,5 @@
 <?php
+
 /**
  * this settings are needed in order to work with pesapal
  * enabled(bool) -if true sets the pesapal to live instead of demo website that was not functioning at the time of writing this package

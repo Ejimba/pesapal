@@ -6,10 +6,10 @@
  * Time: 2:08 AM
  */
 
-namespace Ejimba\Pesapal;
+namespace Ejimba\Pesapal\Oauth;
 
 
-class OAuthSignatureMethod_HMAC_SHA1 extends \OAuthSignatureMethod {
+class OAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod {
     function get_name() {
         return "HMAC-SHA1";
     }

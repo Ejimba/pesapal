@@ -6,7 +6,7 @@
  * Time: 2:04 AM
  */
 
-namespace Ejimba\Pesapal;
+namespace Ejimba\Pesapal\Oauth;
 
 
 class OAuthSignatureMethod {

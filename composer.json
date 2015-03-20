@@ -1,11 +1,10 @@
 {
-    "name": "ericmuigai/pesapal",
-    "description": "This is a Pesapal package for Laravel 4.1 .Please test it first before deploying",
-    "keywords": ["pesa","pesapal","kenya","laravel","payments"],
+    "name": "ejimba/pesapal",
+    "description": "",
     "authors": [
         {
-            "name": "eric",
-            "email": "emuigai5@gmail.com"
+            "name": "",
+            "email": ""
         }
     ],
     "require": {
@@ -17,19 +16,8 @@
             "src/migrations"
         ],
         "psr-0": {
-            "Ericmuigai\\Pesapal\\": "src/"
+            "Ejimba\\Pesapal\\": "src/"
         }
     },
-    "extra": {
-        "component": "package",
-        "frameworks": ["Laravel 5.0"],
-        "versions": {
-            "1": "1.1/master",
-            "2": "master"
-        },
-        "branch-alias": {
-            "dev-master": "2.0-dev"
-        }
-    },
-    "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }

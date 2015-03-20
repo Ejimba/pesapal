@@ -6,7 +6,7 @@
  * Time: 2:09 AM
  */
 
-namespace Ejimba\Pesapal;
+namespace Ejimba\Pesapal\Oauth;
 
 
 class OAuthException extends Exception {

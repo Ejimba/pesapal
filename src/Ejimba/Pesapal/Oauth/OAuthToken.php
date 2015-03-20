@@ -5,8 +5,7 @@
  * Date: 6/13/14
  * Time: 2:04 AM
  */
-
-namespace Ejimba\Pesapal;
+namespace Ejimba\Pesapal\Oauth;
 
 
 class OAuthToken {

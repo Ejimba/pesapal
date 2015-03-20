@@ -6,7 +6,7 @@
  * Time: 2:08 AM
  */
 
-namespace Ericmuigai\Pesapal;
+namespace Ejimba\Pesapal;
 
 
 class OAuthsha1 extends OAuthsignaturemethod {
