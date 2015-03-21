@@ -1,23 +1,64 @@
-Pesapal package for Laravel
-=======
-<h2>Introduction</h2>
-This is a Laravel 4.1 pesapal package.
-I provided this package as to help.
-Pesapal do not have a way to test this so I guess you will have to send money
-payments to test
+Laravel Pesapal Package
+=======================
 
-<h2>Installation</h2>
-add <pre>"ejimba/pesapal": "1.x"</pre> to your composer.json and then <pre>composer update</pre>
-this will install the package
-Once the package is installed add <pre>'Ejimba\Pesapal\PesapalServiceProvider',</pre> to the providers.
-after this publish the config file by <pre>php artisan config:publish ejimba/pesapal</pre>
-then migrate the package table by using <pre>php artisan migrate --package=ejimba/pesapal</pre>
-Go to your pesapal account and in the ipn url enter <pre>yoursite.com/listenipn</pre> or or the url to your public path/listenipn<br/>
-You should now find the config.php in the <pre>app/packages/ejimba/pesapal </pre>
+## Introduction
 
+This is a Laravel pesapal package to integrate Pesapal payments in your application. Pesapal do not have a way to test this so I guess you will have to send money payments to test.
+
+## Installation
+
+You should install this package with [Composer](http://getcomposer.org/). Add the following "require" to your `composer.json` file and run the `composer install` command to install it.
+
+##### Laravel 5
+
+Coming soon
+
+##### Laravel 4.2
+
+```json
+{
+    "require": {
+        "ejimba/pesapal": "2.x"
+    }
+}
+```
+
+##### Laravel 4.1
+
+```json
+{
+    "require": {
+        "ejimba/pesapal": "1.x"
+    }
+}
+```
+
+Then, in your `config/app.php` add this line to your 'providers' array.
+
+```php
+'Ejimba\Pesapal\PesapalServiceProvider',
+```
+
+Then, publish the config file by
+
+```php
+'php artisan config:publish ejimba/pesapal',
+```
+
+Then, migrate the package table by using
+
+```php
+'php artisan migrate --package=ejimba/pesapal',
+```
+
+Go to your pesapal account and in the ipn url enter
+
+```php
+'yoursite.com/listenipn',
+```
 
 <h2>Configuration</h2>
-This is what you should see in the config.php
+This is what you should see in the app/packages/ejimba/pesapal/config.php
 <pre>
 /**
  * this settings are needed in order to work with pesapal
