@@ -9,14 +9,14 @@
 namespace Ejimba\Pesapal;
 
 use Illuminate\Support\Facades\Redirect as Redirect;
-use Illuminate\View\Environment;
+use Illuminate\View\Factory as ViewEnvironment;
 use Illuminate\Support\Facades\Input as Input;
 
 class Pesapal
 {
     protected $view;
 
-    public function __construct(Environment $view)
+    public function __construct(ViewEnvironment $view)
     {
         $this->view = $view;
     }
