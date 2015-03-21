@@ -1,30 +1,49 @@
 <?php
 
-/**
- * this settings are needed in order to work with pesapal
- * enabled(bool) -if true sets the pesapal to live instead of demo website that was not functioning at the time of writing this package
- * consumer_key the consumer key gotten from the pesapal website
- * consumer_secret- The consumer secret gotten from the pesapal website
- * controller - This is the controller that will be called if the status is valid,
- * please note the method that will be called will be updateItem and should be static that is update($key,$reference)
- * Key- the key to protect the method from being called elsewhere
- * redirectTo - the link to where your thankyou page is
- * email - Your email address where you will be emailed on complete transaction
- * name - your name
- * currency - the currency that will be used on payment
- *
- */
 return array(
+    
+    //enable/disable pesapal
 
-    'enabled' => true,
+    'enabled' => true, 
+    
+    // Consumer key emailed to you when you created a business account
+    // If you don't have one, sign up at https://www.pesapal.com/home/businessindex
+
     'consumer_key' => "",
+    
+    // Consumer secret emailed to you when you created a business account
+    // If you don't have one, sign up at https://www.pesapal.com/home/businessindex
+    
     'consumer_secret'=>"",
+
+    // This is the controller action that will be called if the status is valid,
+    // please note the method that will be called will be updateItem and should be
+    // static that is update($key,$reference)
+    
     'controller'=>"YourController",
+
+    // key to protect the method from being called elsewhere
+
     'key'=>"12345",
+
+    // the link to where your thankyou page is
+
     'redirectTo'=>"/",
-    'email'=>"your@email.com",
+
+    // whether to send email or not
+
     'mail'=>true,
+
+    // email address where you will be emailed upon complete transaction
+
+    'email'=>"your@email.com",
+
+     // name for email sending purposes
+
     'name'=>"Admin",
-    'currency'=>"KES",
+    
+    // default currency
+
+    'currency' => "KES",
 
 );
