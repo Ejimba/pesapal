@@ -1,15 +1,21 @@
 {
     "name": "ejimba/pesapal",
-    "description": "",
+    "description": "Laravel Pesapal Payment Gateway API Wrapper",
+    "license": "MIT",
     "authors": [
         {
-            "name": "",
-            "email": ""
+            "name": "eric",
+            "email": "emuigai5@gmail.com"
+        },
+        {
+            "name": "Ejimba Eric",
+            "email": "ejimba@gmail.com"
         }
     ],
+    "keywords": ["laravel", "pesapal", "payments", "pesa", "api", "kenya"],
     "require": {
         "php": ">=5.3.0",
-        "illuminate/support": "4.1.*"
+        "illuminate/support": "4.2.*"
     },
     "autoload": {
         "classmap": [
