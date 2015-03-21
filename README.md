@@ -1,7 +1,9 @@
 Laravel Pesapal Package
 =======================
 
+[![Build Status](https://img.shields.io/travis/ejimba/pesapal/master.svg?style=flat-square)](https://travis-ci.org/ejimba/pesapal)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/Ejimba/pesapal/master/LICENSE)
+[![Latest Version](https://img.shields.io/github/release/ejimba/pesapal.svg?style=flat-square)](https://github.com/ejimba/pesapal/releases)
 
 ## Introduction
 
@@ -44,19 +46,19 @@ Then, in your `app/config/app.php` add this line to your 'providers' array.
 Then, publish the config file by
 
 ```php
-php artisan config:publish ejimba/pesapal,
+php artisan config:publish ejimba/pesapal
 ```
 
 Then, migrate the package table by using
 
 ```php
-php artisan migrate --package=ejimba/pesapal,
+php artisan migrate --package=ejimba/pesapal
 ```
 
 Go to your pesapal account and in the ipn url enter
 
 ```php
-yoursite.com/listenipn,
+yoursite.com/listenipn
 ```
 
 ## Configuration
@@ -118,7 +120,7 @@ return array(
 After configuration, you should be able to call
 
 ```php
-Pesapal::Iframe($dataArray),
+Pesapal::Iframe($dataArray)
 ```
 from any view you would like the payment iframe to appear.
 
@@ -139,3 +141,7 @@ $dataArray = array(
     'frame_height' => 'Height of the iframe. Please provide integers as in 900 without the px'
 );
 ```
+
+## License
+
+Laravel Auto Presenter is licensed under [The MIT License (MIT)](LICENSE).
