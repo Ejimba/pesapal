@@ -1,7 +1,7 @@
 Laravel Pesapal Package
 =======================
 
-[![Build Status](https://img.shields.io/travis/ejimba/pesapal/master.svg?style=flat-square)](https://travis-ci.org/ejimba/pesapal)
+[![Build Status](https://travis-ci.org/Ejimba/pesapal.svg?branch=master)](https://travis-ci.org/Ejimba/pesapal)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://raw.githubusercontent.com/Ejimba/pesapal/master/LICENSE)
 [![Latest Version](https://img.shields.io/github/release/ejimba/pesapal.svg?style=flat-square)](https://github.com/ejimba/pesapal/releases)
 
