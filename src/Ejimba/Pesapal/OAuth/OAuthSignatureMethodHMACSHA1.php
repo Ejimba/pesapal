@@ -1,9 +1,9 @@
 <?php namespace Ejimba\Pesapal\OAuth;
 
-class OAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod {
+class OAuthSignatureMethodHMACSHA1 extends OAuthSignatureMethod {
 	
 	public function get_name() {
-		return "HMAC-SHA1";
+		return "HMACSHA1";
 	}
 
 	public function build_signature($request, $consumer, $token) {

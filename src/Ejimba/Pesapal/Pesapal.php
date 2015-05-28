@@ -7,7 +7,7 @@ use \Illuminate\Support\Facades\Redirect;
 use \Ejimba\Pesapal\Models\PesapalPayment;
 use \Ejimba\Pesapal\OAuth\OAuthConsumer;
 use \Ejimba\Pesapal\OAuth\OAuthRequest;
-use \Ejimba\Pesapal\OAuth\OAuthSignatureMethod_HMAC_SHA1;
+use \Ejimba\Pesapal\OAuth\OAuthSignatureMethodHMACSHA1;
 
 class Pesapal {
 
@@ -194,7 +194,7 @@ class Pesapal {
         $post_xml = htmlentities($post_xml);
         $token = $params = NULL;
         $consumer = new OAuthConsumer($this->consumer_key, $this->consumer_secret);
-        $signature_method = new OAuthSignatureMethod_HMAC_SHA1;
+        $signature_method = new OAuthSignatureMethodHMACSHA1;
 
         //post transaction to pesapal
         $iframe_src = OAuthRequest::from_consumer_and_token($consumer, $token, "GET", $this->iframe_url, $params);
@@ -220,7 +220,7 @@ class Pesapal {
         {
             $token = $params = NULL;
             $consumer = new OAuthConsumer($this->consumer_key, $this->consumer_secret);
-            $signature_method = new OAuthSignatureMethod_HMAC_SHA1();
+            $signature_method = new OAuthSignatureMethodHMACSHA1;
 
             //get transaction status
             $request_status = OAuthRequest::from_consumer_and_token($consumer, $token, "GET", $this->ipn_url, $params);

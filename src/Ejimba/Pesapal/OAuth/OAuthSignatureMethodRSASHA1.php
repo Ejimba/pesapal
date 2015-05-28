@@ -1,9 +1,9 @@
 <?php namespace Ejimba\Pesapal\OAuth;
 
-class OAuthSignatureMethod_RSA_SHA1 extends OAuthSignatureMethod {
+class OAuthSignatureMethodRSASHA1 extends OAuthSignatureMethod {
 	
 	public function get_name() {
-		return "RSA-SHA1";
+		return "RSASHA1";
 	}
 
 	protected function fetch_public_cert(&$request) {

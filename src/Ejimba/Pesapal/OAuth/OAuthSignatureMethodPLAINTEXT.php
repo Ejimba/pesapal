@@ -1,6 +1,6 @@
 <?php namespace Ejimba\Pesapal\OAuth;
 
-class OAuthSignatureMethod_PLAINTEXT extends OAuthSignatureMethod {
+class OAuthSignatureMethodPLAINTEXT extends OAuthSignatureMethod {
 	
 	public function get_name() {
 		return "PLAINTEXT";
