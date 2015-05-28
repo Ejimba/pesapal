@@ -3,7 +3,7 @@
 class OAuthSignatureMethodRSASHA1 extends OAuthSignatureMethod {
 	
 	public function get_name() {
-		return "RSASHA1";
+		return "RSA-SHA1";
 	}
 
 	protected function fetch_public_cert(&$request) {
