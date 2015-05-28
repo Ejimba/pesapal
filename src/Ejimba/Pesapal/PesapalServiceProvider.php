@@ -2,6 +2,8 @@
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Routing\UrlGenerator as URL;
+
+
 class PesapalServiceProvider extends ServiceProvider {
 
 	/**

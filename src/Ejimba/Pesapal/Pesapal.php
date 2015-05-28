@@ -12,6 +12,12 @@ use Illuminate\Support\Facades\Redirect as Redirect;
 use Illuminate\View\Factory as ViewEnvironment;
 use Illuminate\Support\Facades\Input as Input;
 
+use Ejimba\Pesapal\Oauth\OAuthSignatureMethod_HMAC_SHA1;
+use Ejimba\Pesapal\Oauth\PesapalCheckStatus;
+use Ejimba\Pesapal\Oauth\Ipnlisten;
+use Ejimba\Pesapal\Oauth\OAuthConsumer;
+use Ejimba\Pesapal\Oauth\OAuthRequest;
+
 class Pesapal
 {
     protected $view;
@@ -27,7 +33,7 @@ class Pesapal
     public static function checkStatus()
     {
         global $enabled, $consumer_key, $consumer_secret;
-        $check = new Oauth\PesapalCheckStatus($consumer_key, $consumer_secret, $enabled);
+        $check = new PesapalCheckStatus($consumer_key, $consumer_secret, $enabled);
         echo $check->checkStatusUsingTrackingIdandMerchantRef("Merchant", "1234");
     }
 
@@ -63,7 +69,7 @@ class Pesapal
         } else {
             $link = 'http://demo.pesapal.com/api/querypaymentstatus';
         }
-        new Oauth\Ipnlisten($consumer_key, $consumer_secret, $link, $key, $controller,$email,$mail,$name);
+        new Ipnlisten($consumer_key, $consumer_secret, $link, $key, $controller,$email,$mail,$name);
     }
 
     /**
@@ -92,7 +98,7 @@ class Pesapal
         $token = $params = NULL;
         //account on demo.pesapal.com. When you are ready to go live make sure you
         //change the secret to the live account registered on www.pesapal.com!
-        $signature_method = new Oauth\OAuthSignatureMethod_HMAC_SHA1();
+        $signature_method = new OAuthSignatureMethod_HMAC_SHA1();
 
 
         //set if enabled
@@ -175,9 +181,9 @@ class Pesapal
         $post_xml = htmlentities($post_xml);
 
 
-        $consumer = new Oauth\OAuthConsumer($consumer_key, $consumer_secret);
+        $consumer = new OAuthConsumer($consumer_key, $consumer_secret);
         //post transaction to pesapal
-        $iframe_src = Oauth\OAuthRequest::from_consumer_and_token($consumer, $token, "GET", $iframelink, $params);
+        $iframe_src = OAuthRequest::from_consumer_and_token($consumer, $token, "GET", $iframelink, $params);
 
         $iframe_src->set_parameter("oauth_callback", $callback_url);
         $iframe_src->set_parameter("pesapal_request_data", $post_xml);
