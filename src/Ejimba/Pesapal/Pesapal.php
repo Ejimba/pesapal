@@ -2,10 +2,45 @@
 
 namespace Ejimba\Pesapal;
 
+require  dirname(__FILE__).'/OAuth.php';
+
 use Illuminate\Support\Facades\Redirect as Redirect;
 use Illuminate\View\Factory as ViewEnvironment;
 use Illuminate\Support\Facades\Input as Input;
 
+if(!class_exists("OAuthSignatureMethod") ) {
+    class OAuthSignatureMethod {
+      public function check_signature(&$request, $consumer, $token, $signature) {
+        $built = $this->build_signature($request, $consumer, $token);
+        return $built == $signature;
+      }
+    }
+}
+
+if(!class_exists("OAuthSignatureMethod_HMAC_SHA1") ) {
+    class OAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod {
+      function get_name() {
+        return "HMAC-SHA1";
+      }
+    
+      public function build_signature($request, $consumer, $token) {
+        $base_string = $request->get_signature_base_string();
+        $request->base_string = $base_string;
+    
+        $key_parts = array(
+          $consumer->secret,
+          ($token) ? $token->secret : ""
+        );
+    
+        $key_parts = OAuthUtil::urlencode_rfc3986($key_parts);
+        $key = implode('&', $key_parts);
+    
+        return base64_encode(hash_hmac('sha1', $base_string, $key, true));
+      }
+    }
+}
+
+if(!class_exists("Pesapal") ) {
 class Pesapal
 {
     protected $view;
@@ -184,6 +219,6 @@ class Pesapal
         //return '<iframe src="'.$iframe_src.' width="500px" height="620px" scrolling="auto" frameBorder="0"> <p>Unable to load the payment page</p> </iframe>';
     }
 
-
+}
 }
 
