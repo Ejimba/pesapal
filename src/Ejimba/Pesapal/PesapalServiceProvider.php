@@ -1,4 +1,6 @@
-<?php namespace Ejimba\Pesapal;
+<?php
+
+namespace Ejimba\Pesapal;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Routing\UrlGenerator as URL;

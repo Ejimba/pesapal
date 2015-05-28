@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: eric
- * Date: 6/13/14
- * Time: 2:04 AM
- */
 
 namespace Ejimba\Pesapal;
 

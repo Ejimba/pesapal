@@ -1,22 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: eric
- * Date: 6/13/14
- * Time: 12:39 AM
- */
 
 namespace Ejimba\Pesapal;
 
 use Illuminate\Support\Facades\Redirect as Redirect;
 use Illuminate\View\Factory as ViewEnvironment;
 use Illuminate\Support\Facades\Input as Input;
-
-use Ejimba\Pesapal\Oauth\OAuthSignatureMethod_HMAC_SHA1;
-use Ejimba\Pesapal\Oauth\PesapalCheckStatus;
-use Ejimba\Pesapal\Oauth\Ipnlisten;
-use Ejimba\Pesapal\Oauth\OAuthConsumer;
-use Ejimba\Pesapal\Oauth\OAuthRequest;
 
 class Pesapal
 {
@@ -98,6 +86,7 @@ class Pesapal
         $token = $params = NULL;
         //account on demo.pesapal.com. When you are ready to go live make sure you
         //change the secret to the live account registered on www.pesapal.com!
+        
         $signature_method = new OAuthSignatureMethod_HMAC_SHA1();
 
 

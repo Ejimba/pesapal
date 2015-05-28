@@ -1,12 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: eric
- * Date: 6/13/14
- * Time: 2:08 AM
- */
 
-namespace Ejimba\Pesapal\Oauth;
+namespace Ejimba\Pesapal;
 
 
 class OAuthSignatureMethod_HMAC_SHA1 extends OAuthSignatureMethod {

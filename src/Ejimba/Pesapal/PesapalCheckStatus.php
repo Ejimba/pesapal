@@ -1,5 +1,6 @@
 <?php
-namespace Ejimba\Pesapal\Oauth;
+
+namespace Ejimba\Pesapal;
 
 class PesapalCheckStatus {
 

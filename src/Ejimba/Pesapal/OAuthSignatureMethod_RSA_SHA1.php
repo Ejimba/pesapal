@@ -1,14 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: eric
- * Date: 6/13/14
- * Time: 2:10 AM
- */
 
 namespace Ejimba\Pesapal;
 
-class OAuthSignatureMethod_RSA_SHA1 extends \OAuthSignatureMethod {
+class OAuthSignatureMethod_RSA_SHA1 extends OAuthSignatureMethod {
     public function get_name() {
         return "RSA-SHA1";
     }

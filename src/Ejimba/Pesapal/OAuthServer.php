@@ -1,12 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: eric
- * Date: 6/13/14
- * Time: 2:12 AM
- */
 
-namespace Ejimba\Pesapal\Oauth;
+namespace Ejimba\Pesapal;
 
 
 class OAuthServer {
@@ -87,7 +81,7 @@ class OAuthServer {
             $version = 1.0;
         }
         if ($version && $version != $this->version) {
-            throw new \OAuthException("OAuth version '$version' not supported");
+            throw new OAuthException("OAuth version '$version' not supported");
         }
         return $version;
     }
@@ -103,7 +97,7 @@ class OAuthServer {
         }
         if (!in_array($signature_method,
             array_keys($this->signature_methods))) {
-            throw new \OAuthException(
+            throw new OAuthException(
                 "Signature method '$signature_method' not supported " .
                 "try one of the following: " .
                 implode(", ", array_keys($this->signature_methods))
@@ -118,12 +112,12 @@ class OAuthServer {
     private function get_consumer(&$request) {
         $consumer_key = @$request->get_parameter("oauth_consumer_key");
         if (!$consumer_key) {
-            throw new \OAuthException("Invalid consumer key");
+            throw new OAuthException("Invalid consumer key");
         }
 
         $consumer = $this->data_store->lookup_consumer($consumer_key);
         if (!$consumer) {
-            throw new \OAuthException("Invalid consumer");
+            throw new OAuthException("Invalid consumer");
         }
 
         return $consumer;
@@ -138,7 +132,7 @@ class OAuthServer {
             $consumer, $token_type, $token_field
         );
         if (!$token) {
-            throw new \OAuthException("Invalid $token_type token: $token_field");
+            throw new OAuthException("Invalid $token_type token: $token_field");
         }
         return $token;
     }
@@ -166,7 +160,7 @@ class OAuthServer {
         );
 
         if (!$valid_sig) {
-            throw new \OAuthException("Invalid signature");
+            throw new OAuthException("Invalid signature");
         }
     }
 
@@ -177,7 +171,7 @@ class OAuthServer {
         // verify that timestamp is recentish
         $now = time();
         if ($now - $timestamp > $this->timestamp_threshold) {
-            throw new \OAuthException(
+            throw new OAuthException(
                 "Expired timestamp, yours $timestamp, ours $now"
             );
         }
@@ -195,7 +189,7 @@ class OAuthServer {
             $timestamp
         );
         if ($found) {
-            throw new \OAuthException("Nonce already used: $nonce");
+            throw new OAuthException("Nonce already used: $nonce");
         }
     }
 

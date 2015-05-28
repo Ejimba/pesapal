@@ -1,18 +1,20 @@
 <?php
-namespace Ejimba\Pesapal\Oauth;
+namespace Ejimba\Pesapal;
+
 class XMLHttpRequest
 {
 	private $curl;
 	private $responseHeaders;
 	private $headers;
 	private $properties = array();
+
 	public function __set($property, $value) {
 		switch (strtolower($property)) {
 			case "maxredirects":
 				if(is_int($value)) {
 					$this->properties["maxredirects"] = $value;
 				}else{
-					throw new Exception("cannot implicitly convert type in the property \"$property\" to int");
+					throw new \Exception("cannot implicitly convert type in the property \"$property\" to int");
 				}
 				break;
 			case "curl":
@@ -22,10 +24,10 @@ class XMLHttpRequest
 			case "responsexml":
 			case "status":
 			case "statustext":
-				throw new Exception("property \"$property\" cannot be assigned to -- it is read only");
+				throw new \Exception("property \"$property\" cannot be assigned to -- it is read only");
 				break;
 			default:
-				throw new Exception("class \"".__CLASS__."\" does not contain a definition for \"$property\"");
+				throw new \Exception("class \"".__CLASS__."\" does not contain a definition for \"$property\"");
 		}
 	}
 	
@@ -47,7 +49,7 @@ class XMLHttpRequest
 			case "responsexml":
 				if(!isset($this->properties["responsexml"])){
 					if(isset($this->properties["responsetext"]) && !empty($this->properties["responsetext"])){
-						$xml = DOMDocument::loadXML($this->properties["responsetext"], LIBXML_ERR_NONE | LIBXML_NOERROR);
+						$xml = \DOMDocument::loadXML($this->properties["responsetext"], LIBXML_ERR_NONE | LIBXML_NOERROR);
 						if($xml){
 							$this->properties["responsexml"] = $xml;
 							return $xml;
@@ -58,7 +60,7 @@ class XMLHttpRequest
 				}
 				return null;
 			default:
-				throw new Exception("class \"".__CLASS__."\" does not contain a definition for \"$property\"");
+				throw new \Exception("class \"".__CLASS__."\" does not contain a definition for \"$property\"");
 		}
   }
 	
@@ -95,7 +97,7 @@ class XMLHttpRequest
 		if(!empty($method) && !empty($url)){
 			$method = strtoupper(trim($method));
 			if(!preg_match("/^(GET|POST|HEAD|TRACE|PUT|DELETE|OPTIONS)$/", $method)){
-				throw new Exception("Unknown HTTP method \"$method\"");
+				throw new \Exception("Unknown HTTP method \"$method\"");
 			}
 			$referer = curl_getinfo($this->curl, CURLINFO_EFFECTIVE_URL);
 			if(!empty($referer) ){
