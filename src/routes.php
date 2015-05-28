@@ -1,12 +1,25 @@
 <?php
-Route::get('/checkstatus', function(){
+
+Route::get('checkstatus', function(){
     return Pesapal::checkStatus();
-});Route::get('/pesapal_redirect', function(){
+});
+
+Route::get('check', function(){
+    return Pesapal::checkStatus();
+});
+
+Route::get('pesapal_redirect', function(){
     return Pesapal::redirectAfterPayment();
 });
-Route::get('/listenipn', function(){
+
+Route::get('listenipn', function(){
     return Pesapal::listentToIpn();
 });
-Route::get('/iframe', function(){
+
+Route::get('ipn', function(){
+    return Pesapal::listentToIpn();
+});
+
+Route::get('iframe', function(){
     return Pesapal::Iframe();
 });

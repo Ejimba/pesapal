@@ -1,14 +1,14 @@
 <?php namespace Ejimba\Pesapal\Facades;
 
 use Illuminate\Support\Facades\Facade;
-/**
- * Created by PhpStorm.
- * User: eric
- * Date: 6/13/14
- * Time: 12:42 AM
- */
-
 
 class Pesapal extends Facade {
+
+    /**
+     * Get the registered name of the component.
+     *
+     * @return string
+     */
     protected static function getFacadeAccessor() { return 'pesapal'; }
-} 
+
+}

@@ -1,194 +1,333 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: eric
- * Date: 6/13/14
- * Time: 12:39 AM
- */
+<?php namespace Ejimba\Pesapal;
 
-namespace Ejimba\Pesapal;
+use \Config, \URL;
+use \Illuminate\Support\Facades\Mail;
+use \Illuminate\Support\Facades\Input;
+use \Illuminate\Support\Facades\Redirect;
+use \Ejimba\Pesapal\Models\PesapalPayment;
+use \Ejimba\Pesapal\OAuth\OAuthConsumer;
+use \Ejimba\Pesapal\OAuth\OAuthRequest;
+use \Ejimba\Pesapal\OAuth\OAuthSignatureMethodHMACSHA1;
 
-use Illuminate\Support\Facades\Redirect as Redirect;
-use Illuminate\View\Environment;
-use Illuminate\Support\Facades\Input as Input;
+class Pesapal {
 
-class Pesapal
-{
-    protected $view;
+    protected $enabled;
+    protected $currency;
+    protected $consumer_key;
+    protected $consumer_secret;
+    protected $ipn_url;
+    protected $iframe_url;
+    protected $controller;
+    protected $key;
+    protected $redirectTo;
+    protected $mail;
+    protected $email;
+    protected $name;
+    protected $payment_email_view;
 
-    public function __construct(Environment $view)
+    public function __construct()
     {
-        $this->view = $view;
-    }
-
-    /**
-     * Was implemented to check status but not yet fully working
-     */
-    public static function checkStatus()
-    {
-        global $enabled, $consumer_key, $consumer_secret;
-        $check = new Oauth\PesapalCheckStatus($consumer_key, $consumer_secret, $enabled);
-        echo $check->checkStatusUsingTrackingIdandMerchantRef("Merchant", "1234");
-    }
-
-    /**
-     * @return mixed Redirect to the specified url
-     */
-    public function redirectAfterPayment()
-    {
-        global $redirectTo;
-        $tracking_id = Input::get("pesapal_transaction_tracking_id");
-        $reference = Input::get("pesapal_merchant_reference");
-        $query = Pesapalpayments::where("reference", $reference)->first();
-
-        if (count($query) == 1) {
-            $query->tracking_id = $tracking_id;
-            $query->save();
+        $this->enabled = Config::get('pesapal::enabled');
+        $this->consumer_key = Config::get('pesapal::consumer_key');
+        $this->consumer_secret = Config::get('pesapal::consumer_secret');
+        $this->currency = Config::get('pesapal::currency');
+        if($this->enabled){
+            $this->iframe_url = Config::get('pesapal::url.iframe_live');
+            $this->ipn_url = Config::get('pesapal::url.ipn_live');
         }
-        return Redirect::to($redirectTo);
-        //This is to check teh status but since the ipn will run I will ignore this and let ipn handle everything from there
-        //  $check = new Oauth\PesapalCheckStatus($consumer_key,$consumer_secret,$enabled);
-        //  $status 			= $check->checkStatusUsingTrackingIdandMerchantRef($reference,$tracking_id);
-    }
-
-    /**
-     * This the main function that will control the ipn queries
-     */
-    public function listentToIpn()
-    {
-        global $enabled, $consumer_key, $consumer_secret, $controller, $key,$email,$mail,$name;
-        //set if enabled
-        if ($enabled == "true") {
-            $link = 'https://www.pesapal.com/api/querypaymentstatus';
-        } else {
-            $link = 'http://demo.pesapal.com/api/querypaymentstatus';
+        else{
+            $this->iframe_url = Config::get('pesapal::url.iframe_demo');
+            $this->ipn_url = Config::get('pesapal::url.ipn_demo');
         }
-        new Oauth\Ipnlisten($consumer_key, $consumer_secret, $link, $key, $controller,$email,$mail,$name);
+        $this->controller = Config::get('pesapal::controller');
+        $this->key = Config::get('pesapal::key');
+        $this->redirectTo = Config::get('pesapal::redirectTo');
+        $this->mail = Config::get('pesapal::mail');
+        $this->email = Config::get('pesapal::email');
+        $this->name = Config::get('pesapal::name');
+        $this->payment_email_view = Config::get('pesapal::views.payment_email');
     }
 
     /**
-     * generates the iframe from the given details
-     * @param array $values this array should contain the fields required by pesapal
-     * description - description of the item or service
-     * currency - if set will override the config settings you have of currency
-     * user -which should be your client user id if you have a system of users
-     * first_name- the first name of the user that is paying
-     * last_name - the last name of the user that is paying
-     * email - this should be a valid email or pesapal will throw an error
-     * phone_number -which is option if you have the email
-     * amount - the total amount to be posted to pesapal
-     * reference Please Make sure this is a unique key to the transaction. May be left empty it will be auto generated
-     * type - default is MERCHANT
-     * frame_height- this is the height of the iframe please provide integers as in 900 without the px
+     *  Generates the iframe from the given details
+     * 
+     *  @param array $values
+     *  
+     *  This array should contain the fields required by pesapal
+     * 
+     *  description - description of the item or service
+     *  currency - if set will override the config settings you have of currency
+     *  user - which should be your client user id if you have a system of users
+     *  first_name- the first name of the user that is paying
+     *  last_name - the last name of the user that is paying
+     *  email - this should be a valid email or pesapal will throw an error
+     *  phone_number - optional if you have the email
+     *  amount - the total amount to be posted to pesapal
+     *  reference - a unique key to the transaction. if left empty, it will be auto generated
+     *  type - default is MERCHANT
+     *  frame_height - this is the height of the iframe. please provide integers as in 900 without the px
      *
-     * @return string the iframe of pesapal
+     *  @return string
+     * 
+     *  The string contains the iframe of pesapal
+     * 
      */
+
     public function Iframe($values = array())
     {
-        global $enabled, $consumer_key, $consumer_secret, $currency;
-
-//        echo "$currency enabled $enabled consumer_key $consumer_key  consumer_se =$consumer_secret";
-//die();
-        $token = $params = NULL;
-        //account on demo.pesapal.com. When you are ready to go live make sure you
-        //change the secret to the live account registered on www.pesapal.com!
-        $signature_method = new Oauth\OAuthSignatureMethod_HMAC_SHA1();
-
-
-        //set if enabled
-        if ($enabled == "true") {
-            $iframelink = 'https://www.pesapal.com/api/PostPesapalDirectOrderV4';
-        } else {
-            $iframelink = 'http://demo.pesapal.com/API/PostPesapalDirectOrderV4';
+        if(!isset($values['amount']))
+        {
+            throw new PesapalException("Missing Data : The payment amount is missing", 101);
         }
-        $amount = $values['amount'];
-        //removed the below code since I saw on the forums pesapal interprets as a fullstop as in 1,000 = 1.0
-        // $amount = number_format($amount, 2); //format amount to 2 decimal places
-        $desc = $values['description'];
-        //$type = $values['type']; //default value = MERCHANT
-
-
-        if (in_array("reference", $values, false)) {
-            $ref = str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 5);
-            $reference = substr(str_shuffle($ref), 0, 10);
-        } else {
-            $reference = $values['reference']; //unique order id of the transaction, generated by merchant
+        else
+        {
+            $amount = $values['amount'];
         }
 
-        $first_name = $values['first_name']; //[optional]
-        $last_name = $values['last_name']; //[optional]
-        $email = $values['email'];
-        $type = 'MERCHANT';
-        if (!in_array("type", $values)) {
+        if(!isset($values['description']))
+        {
+            $description = 'Payment to '.URL::to('/');
+        }
+        else
+        {
+            $description = $values['description'];
+        }
+
+        if(!isset($values['type']))
+        {
             $type = 'MERCHANT';
-        } else {
+        }
+        else
+        {
             $type = $values['type'];
         }
-        $phone_number = $values['phone_number'];
 
-        if ((in_array("currency", $values, TRUE))) {
+        if(!isset($values['reference']))
+        {
+            $ref = str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 5);
+            $reference = substr(str_shuffle($ref), 0, 10);
+        }
+        else
+        {
+            $reference = $values['reference'];
+        }
+
+        if(!isset($values['first_name']))
+        {
+            throw new PesapalException("Missing Data : The first_name of the customer is required", 102);
+        }
+        else
+        {
+            $first_name = $values['first_name'];
+        }
+
+        if(!isset($values['last_name']))
+        {
+            throw new PesapalException("Missing Data : The last_name of the customer is required", 103);
+        }
+        else
+        {
+            $last_name = $values['last_name'];
+        }
+
+        if(!isset($values['email']) && !isset($values['phone_number']))
+        {
+            throw new PesapalException("Missing Data : The email or phone number of the customer is required", 104);
+        }
+        else
+        {
+            isset($values['email']) ? $email = $values['email']: $email = '';
+            isset($values['phone_number']) ? $phone_number = $values['phone_number']: $phone_number = '';
+        }
+
+        if(!isset($values['currency']))
+        {
+            $currency = $this->currency;
+        }
+        else
+        {
             $currency = $values['currency'];
         }
 
-
-        $amount = number_format($amount, 2); //format amount to 2 decimal places
-
-
-        if (Input::has("currency")) {
-            $currency = Input::get('currency');
+        if(isset($values['user']))
+        {
+            $user = $values['user'];
         }
-        //the array data to be posted to pesapal
+        elseif(isset($values['user_id']))
+        {
+            $user = $values['user_id'];
+        }
+        elseif(isset($values['id']))
+        {
+            $user = $values['id'];
+        }
+        else
+        {
+            throw new PesapalException("Missing Data : The user id of the customer is required", 103);
+        }
+
         $data = array(
             "currency" => $currency,
             "amount" => $amount,
-            "description" => $desc,
+            "description" => $description,
             "type" => $type,
             "reference" => $reference,
             "first_name" => $first_name,
             "last_name" => $last_name,
             "phone_number" => $phone_number,
-            "user" => $values['user'],
+            "user" => $user,
             "email" => $email,
         );
-        //check to see if there is any payment with this reference id
-        //and also avoids duplicates in the database
-        $query = Pesapalpayments::where("reference", $reference)->first();
-        if (count($query) == 0) {
-            Pesapalpayments::create($data);
+
+        $recs = PesapalPayment::where("reference", '=', $reference)->count();
+
+        if($recs < 1)
+        {
+            PesapalPayment::create($data);
         }
 
-        $callback_url = url('/pesapal_redirect'); //redirect url, the page that will handle the response from pesapal.
-        $post_xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>
-				   <PesapalDirectOrderInfo
-						xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
-					  	xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"
-					  	Currency=\"" . $currency . "\"
-					  	Amount=\"" . $amount . "\"
-					  	Description=\"" . $desc . "\"
-					  	Type=\"" . $type . "\"
-					  	Reference=\"" . $reference . "\"
-					  	FirstName=\"" . $first_name . "\"
-					  	LastName=\"" . $last_name . "\"
-					  	Email=\"" . $email . "\"
-					  	PhoneNumber=\"" . $phone_number . "\"
-					  	xmlns=\"http://www.pesapal.com\" />";
+        //redirect url, the page that will handle the response from pesapal.
+
+        $callback_url = URL::to('pesapal_redirect');
+
+        $post_xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?><PesapalDirectOrderInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" Amount=\"".$amount."\" Description=\"".$description."\" Type=\"".$type."\" Reference=\"".$reference."\" FirstName=\"".$first_name."\" LastName=\"".$last_name."\" Email=\"".$email."\" PhoneNumber=\"".$phone_number."\" xmlns=\"http://www.pesapal.com\" />";
         $post_xml = htmlentities($post_xml);
+        $token = $params = NULL;
+        $consumer = new OAuthConsumer($this->consumer_key, $this->consumer_secret);
+        $signature_method = new OAuthSignatureMethodHMACSHA1;
 
-
-        $consumer = new Oauth\OAuthConsumer($consumer_key, $consumer_secret);
         //post transaction to pesapal
-        $iframe_src = Oauth\OAuthRequest::from_consumer_and_token($consumer, $token, "GET", $iframelink, $params);
-
+        $iframe_src = OAuthRequest::from_consumer_and_token($consumer, $token, "GET", $this->iframe_url, $params);
         $iframe_src->set_parameter("oauth_callback", $callback_url);
         $iframe_src->set_parameter("pesapal_request_data", $post_xml);
         $iframe_src->sign_request($signature_method, $consumer, $token);
-        // var_dump($post_xml);
 
-        return '<iframe src="' . $iframe_src . '" width="100%" height="' . $values['frame_height'] . 'px" scrolling="no" frameBorder="0">';
+        isset($values['frame_height']) ? $frame_height = $values['frame_height']: $frame_height = 600;
 
-        //return '<iframe src="'.$iframe_src.' width="500px" height="620px" scrolling="auto" frameBorder="0"> <p>Unable to load the payment page</p> </iframe>';
+        return '<iframe src="' . $iframe_src . '" width="100%" height="' . $frame_height . 'px" scrolling="no" frameBorder="0"><p>Unable to load the payment page</p> </iframe>';
     }
 
+    /**
+    * This the main function that will control the ipn queries
+    */
+    public function listentToIpn()
+    {
+        $pesapal_notification = Input::get('pesapal_notification_type');
+        $pesapal_tracking_id = Input::get('pesapal_transaction_tracking_id');
+        $pesapal_merchant_reference = Input::get('pesapal_merchant_reference');
 
+        if($pesapal_notification == "CHANGE" && $pesapal_tracking_id != '')
+        {
+            $token = $params = NULL;
+            $consumer = new OAuthConsumer($this->consumer_key, $this->consumer_secret);
+            $signature_method = new OAuthSignatureMethodHMACSHA1;
+
+            //get transaction status
+            $request_status = OAuthRequest::from_consumer_and_token($consumer, $token, "GET", $this->ipn_url, $params);
+            $request_status->set_parameter("pesapal_merchant_reference", $pesapal_merchant_reference);
+            $request_status->set_parameter("pesapal_transaction_tracking_id", $pesapal_tracking_id);
+            $request_status->sign_request($signature_method, $consumer, $token);
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $request_status);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_HEADER, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            if(defined('CURL_PROXY_REQUIRED')) if (CURL_PROXY_REQUIRED == 'True')
+            {
+                $proxy_tunnel_flag = (defined('CURL_PROXY_TUNNEL_FLAG') && strtoupper(CURL_PROXY_TUNNEL_FLAG) == 'FALSE') ? false : true;
+                curl_setopt ($ch, CURLOPT_HTTPPROXYTUNNEL, $proxy_tunnel_flag);
+                curl_setopt ($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+                curl_setopt ($ch, CURLOPT_PROXY, CURL_PROXY_SERVER_DETAILS);
+            }
+
+            $response = curl_exec($ch);
+
+            $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+            $raw_header  = substr($response, 0, $header_size - 4);
+            $headerArray = explode("\r\n\r\n", $raw_header);
+            $header      = $headerArray[count($headerArray) - 1];
+
+            //transaction status
+            $elements = preg_split("/=/",substr($response, $header_size));
+            $status = $elements[1];
+
+            curl_close ($ch);
+
+            //UPDATE YOUR DB TABLE WITH NEW STATUS FOR TRANSACTION WITH pesapal_transaction_tracking_id $pesapal_tracking_id
+            $payment = PesapalPayment::where("reference", '=', $pesapal_merchant_reference)->first();
+
+            if (!is_null($payment))
+            {
+                $payment->status = $status;
+                if($payment->tracking_id !=''){
+                    $payment->tracking_id = $pesapal_tracking_id;
+                }
+                $payment->save();
+            }
+
+            //if status is COMPLETE and the controller is not empty
+            //then call controller defined by the user to do whatever it has to
+            if($status == "COMPLETED" && $this->controller !=""){
+                $obj = new $this->controller();
+                echo $obj->updateItem($this->key,$pesapal_merchant_reference);
+                
+                if($this->mail == true){
+                    $data = array(
+                        'status'=>$status,
+                        'tracking_id'=>$pesapal_tracking_id,
+                        'reference' =>$pesapal_merchant_reference,
+                        'name'=>$this->name
+                        );
+                    $user = array(
+                        'email'=>$this->email,
+                        'name'=>$this->name
+                        );
+                    Mail::send($this->payment_email_view, $data, function($message) use ($user)
+                    {
+                        $message->to($user['email'], $user['name'])->subject('Payment was processed!');
+                    });
+                }
+
+            }
+            //we do not need to show the pesapal any data if the status is empty
+            //so for pesapal to keep querying us when the status changes
+            if($status   != "PENDING")
+            {
+                $resp="pesapal_notification_type=$pesapal_notification&pesapal_transaction_tracking_id=$pesapal_tracking_id&pesapal_merchant_reference=$pesapal_merchant_reference";
+                ob_start();
+                echo $resp;
+                ob_flush();
+                exit;
+            }
+        }
+    }
+
+    /**
+    *
+    *   Redirect to the specified url
+    *
+    *   @return mixed
+    *
+    */
+
+    public function redirectAfterPayment()
+    {
+        $tracking_id = Input::get("pesapal_transaction_tracking_id");
+        $reference = Input::get("pesapal_merchant_reference");
+        
+        $payment = PesapalPayment::where("reference", '=', $reference)->first();
+
+        if (!is_null($payment)) {
+            $payment->tracking_id = $tracking_id;
+            $payment->save();
+        }
+
+        return Redirect::to($this->redirectTo);
+    }
+
+    public static function checkStatus()
+    {
+        return 'Error';
+    }
 }
-

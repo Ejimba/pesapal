@@ -1,14 +1,5 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: eric
- * Date: 6/13/14
- * Time: 2:09 AM
- */
+<?php namespace Ejimba\Pesapal\OAuth;
 
-namespace Ejimba\Pesapal\Oauth;
-
-
-class OAuthException extends Exception {
-    // pass
+class OAuthException extends \Exception {
+  // pass
 }
